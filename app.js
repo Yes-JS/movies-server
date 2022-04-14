@@ -43,5 +43,5 @@ mongoose.connect(MONGODB_URI)
 			app.listen(process.env.APP_PORT);
 		})
 		.catch(err => {
-			console.log('check this db connection error' ,err)
+			console.log(err)
 		})

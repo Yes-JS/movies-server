@@ -15,7 +15,7 @@ export default function(req, res, next) {
 	const token = authHeader.split(' ')[1];
 	let decodedToken;
 	try {
-		decodedToken = jwt.verify(token, 'somesecretstring');
+		decodedToken = jwt.verify(token, process.env.JWT_SECRET);
 	} catch (err) {
 		return res.status(401).send({
 			permissions: {
