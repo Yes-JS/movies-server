@@ -1,0 +1,9 @@
+{
+	"env": {
+		"MONGO_USER": "root",
+		"MONGO_PASSWORD": "J8xeOKgCBtiTjQoW",
+		"MONGO_DB_NAME": "shop",
+		"APP_PORT": "3300",
+		"JWT_SECRET": "somesecretstring"
+	}
+}

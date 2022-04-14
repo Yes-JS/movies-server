@@ -1,84 +1,47 @@
-const express = require('express');
-const bodyParser = require('body-parser');
+import express from 'express';
+import bodyParser from 'body-parser';
+import mongoose from 'mongoose';
+import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
 
-const catalogRouter = require('./routes/catalog');
-const cartRouter = require('./routes/cart');
-const ordersRouter = require('./routes/orders');
+import authRouter from './routes/auth.js';
+import playlistRouter from './routes/playlist.js';
+import moviesRouter from './routes/movies.js';
+
+import { MONGODB_URI } from './utils/db.js';
 
 const app = express();
-const { sequelize } = require('./utils/db');
-const { Product } = require('./models/product');
-const { User } = require('./models/user');
-const { Cart } = require('./models/cart');
-const { CartItem } = require('./models/cart_item');
-const { Order } = require('./models/order');
-const { OrderItem } = require('./models/order_item');
 
+app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(helmet());
+app.use(helmet.hidePoweredBy());
 
 app.use(function (req, res, next) {
 	res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3500');
 	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-	res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-	res.setHeader('Access-Control-Allow-Credentials', true);
+	res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,Authorization');
+	res.setHeader('Access-Control-Allow-Credentials', "true");
 	next();
 });
 
-app.use((req, res, next) => {
-	User.findAll()
-			.then(users => {
-				req.user = users[0];
-				next();
-			})
-			.catch(err => console.log(err));
-})
-
-app.use('/catalog', catalogRouter.routes);
-app.use('/cart', cartRouter.routes);
-app.use('/orders', ordersRouter.routes);
+app.use('/auth', authRouter);
+app.use('/playlist', playlistRouter);
+app.use('/movies', moviesRouter);
 
 app.use((req, res, next) => {
 		res.status(404).send('not found');
 });
 
+app.use((error, req, res, next) => {
+	res.status(error.status || 500).send(error.message || 'server_error');
+})
 
-User.hasMany(Product);
-User.hasMany(Order);
-User.hasOne(Cart);
-
-Product.belongsTo(User);
-Product.belongsToMany(Cart, { through: CartItem});
-
-Cart.belongsTo(User);
-Cart.belongsToMany(Product, { through: CartItem});
-
-Order.belongsTo(User);
-Order.belongsToMany(Product, { through: OrderItem});
-
-sequelize
-		.sync()
+mongoose.connect(MONGODB_URI)
 		.then(() => {
-			return User.findAll();
+			app.listen(process.env.APP_PORT);
 		})
-		.then(users => {
-			const user = users[0];
-			if (!user) {
-				return User.create({name: "Evgeny", email: "test@t.w", role: "user"})
-			}
-			return user;
+		.catch(err => {
+			console.log(err)
 		})
-		.then((user) => {
-			return user.getCart().then(cart => {
-				if (!cart) {
-					return user.createCart();
-				}
-				return cart;
-			});
-		})
-		.then(cart => {
-			app.listen(3300);
-		})
-		.catch(err => console.log(err));
-
-
