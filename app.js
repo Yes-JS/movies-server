@@ -19,7 +19,7 @@ app.use(helmet());
 app.use(helmet.hidePoweredBy());
 
 app.use(function (req, res, next) {
-	res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3500');
+	res.setHeader('Access-Control-Allow-Origin', process.env.ALLOW_FROM_URL);
 	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
 	res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,Authorization');
 	res.setHeader('Access-Control-Allow-Credentials', "true");
@@ -29,6 +29,7 @@ app.use(function (req, res, next) {
 app.use('/auth', authRouter);
 app.use('/playlist', playlistRouter);
 app.use('/movies', moviesRouter);
+
 
 app.use((req, res, next) => {
 		res.status(404).send('not found');
