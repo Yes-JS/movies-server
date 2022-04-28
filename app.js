@@ -29,13 +29,15 @@ app.use(function (req, res, next) {
 app.use('/auth', authRouter);
 app.use('/playlist', playlistRouter);
 app.use('/movies', moviesRouter);
+app.get('/health', (req, res) => {
+	res.send();
+});
 
-
-app.use((req, res, next) => {
+app.use((req, res) => {
 		res.status(404).send('not found');
 });
 
-app.use((error, req, res, next) => {
+app.use((error, req, res) => {
 	res.status(error.status || 500).send(error.message || 'server_error');
 })
 
