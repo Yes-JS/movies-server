@@ -43,8 +43,10 @@ app.use((error, req, res) => {
 
 mongoose.connect(MONGODB_URI)
 		.then(() => {
+			console.log('listen')
 			app.listen(process.env.APP_PORT);
 		})
 		.catch(err => {
+			console.log('passsss ',process.env.MONGO_PASSWORD)
 			console.log(err)
 		})
